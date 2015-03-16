@@ -1,0 +1,10 @@
+# proxool
+proxool_conf_file = conf/db
+jdbc-0.proxool.alias = proxool-mysql
+jdbc-0.proxool.driver-url = jdbc:mysql://localhost:3366/wordstv?autoReconnect=true&useUnicode=true&characterEncoding=utf-8
+jdbc-0.proxool.driver-class = com.mysql.jdbc.Driver
+jdbc-0.user = 
+jdbc-0.password = 
+jdbc-0.proxool.maximum-connection-count = 100
+jdbc-0.proxool.minimum-connection-count = 30
+jdbc-0.proxool.house-keeping-test-sql = select 1

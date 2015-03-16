@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC
+    "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+    "http://struts.apache.org/dtds/struts-2.0.dtd">
+
+<struts>
+
+	<package name="main" namespace="/" extends="default">
+		<interceptors>					
+			<interceptor-stack name="mydefault">
+				<interceptor-ref name="defaultStack" />
+				<interceptor-ref name="fileUpload">
+			     <!-- 默认附件大小100M -->
+			     <param name="maximumSize">104857600</param>
+			     </interceptor-ref>
+			</interceptor-stack>		
+		</interceptors>		
+
+		<default-interceptor-ref name="mydefault" />		
+	    <global-results>    
+	     	<result name="forbidden">/html/forbidden.jsp</result>
+            <result name="error">/html/login.jsp</result>
+            <result name="success">/html/success.jsp</result>
+            <result name="login">/html/index.jsp</result>
+        </global-results>
+        
+	</package>
+	
+
+	<package name="main" namespace="/" extends="main">     
+	        <action  name="index" class="junjun.web.struts.action.IndexAction">
+	    	    <result name="success">/html/index.jsp</result> 
+	        </action>  
+       </package>
+               
+       <package name="json" namespace="/" extends="json-default">    
+	       <action name="showtaskresultjson" class="junjun.web.struts.action.IndexAction">
+	            <result type="json">
+	                <!-- 此处将reslut的值返回给客户端，root的值对应要返回的值的属性result
+	                      注意：root为固定写法，否则不会把result的值返回给客户端 -->
+	                <param name="root">result</param>
+	            </result>
+	        </action> 
+    </package>
+
+</struts>
