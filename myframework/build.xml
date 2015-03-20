@@ -1,54 +1,32 @@
 <?xml version="1.0"?>
 <!-- TODO 修改name -->
-<project name="wordstv" default="main">
+<project name="com.junjun.framework" default="main">
 	
 	<!-- main函数对应的类名 -->
 	<!-- TODO 修改value -->
-	<property name="main-class" value="org.eclipse.jetty.start.Main" />
-	<property name="server-port" value="10108" />
-	<property name="stop-port" value="10109" />
-	<property name="stop-key" value="${ant.project.name}" />
-	<property name="context-path" value="/${ant.project.name}" />
+	<property name="main-class" value="junjun.main.Main" />
 	
 	<!-- TODO 修改value -->
-	<property name="project.version" value="1.0.0" />
+	<property name="project.version" value="0.0.1" />
 	
-	<!-- 运行时shell名称 -->
-	<!-- TODO 修改value -->
-	<property name="shell.name" value="run" />
-	<property name="shell.jetty.start.name" value="jetty/start.ini" />
-	<property name="shell.jetty.stop.name" value="stop" />
-	
-	<!-- TODO 修改value -->
-	<property name="shell.template.path" value="${basedir}/shell/run.tpl" />
-	<property name="shell.jetty.start.template.path" value="${basedir}/shell/start.ini.tpl" />
-	<property name="shell.jetty.stop.template.path" value="${basedir}/shell/stop.tpl" />
-	
-	<property name="shell.builder" value="com.zgwangbo.antbuild.ShellBuilder" />
-
 	<property name="src.dir" value="${basedir}/src" />
-	<property name="idl-src.dir" value="${basedir}/gen-java" />
-	<property name="classes.dir" value="${basedir}/WebRoot/WEB-INF/classes" />
+	<property name="classes.dir" value="${basedir}/bin" />
 	<property name="lib.dir" value="${basedir}/lib" />
-	<property name="web.lib.dir" value="${basedir}/WebRoot/WEB-INF/lib" />
+	<property name="lib.dir.struts" value="${basedir}/lib_struts2" />
 	<property name="jar.dir" value="${basedir}/jar" />
 	<property name="jar.path" value="${jar.dir}/${ant.project.name}-${project.version}.jar" />
-	<property name="shell.dir" value="${basedir}" />
-	<property name="shell.path" value="${shell.dir}/${shell.name}" />
-	<property name="shell.jetty.start.path" value="${shell.dir}/${shell.jetty.start.name}" />
-	<property name="shell.jetty.stop.path" value="${shell.dir}/${shell.jetty.stop.name}" />
 
 	<path id="classpath">
 		<fileset dir="${lib.dir}" includes="**/*.jar" />
+		<fileset dir="${lib.dir.struts}" includes="**/*.jar" />
 	</path>
 	
 	<path id="srcpath">
 		<fileset dir="${src.dir}" />
-		<fileset dir="${idl-src.dir}" />
 	</path>
 
 	<!-- 主target -->
-	<target name="main" depends="clean,compile,shell" description="Main target">
+	<target name="main" depends="clean,compile,jar" description="Main target">
 		<echo>build done!</echo>
 	</target>
 
@@ -58,8 +36,6 @@
 		<delete includeEmptyDirs="true" quiet="true">
 			<fileset dir="${classes.dir}" />
 			<fileset dir="${jar.dir}" />
-			<fileset file="${shell.path}" />
-			<fileset file="${web.lib.dir}" />
 		</delete>
 	</target>
 
@@ -70,18 +46,12 @@
 	<!-- 编译 -->
 	<target name="compile">
 		<mkdir dir="${classes.dir}" />
-		<mkdir dir="${jar.dir}" />
-		<javac destdir="${classes.dir}" classpathref="classpath" 
+		<javac destdir="${classes.dir}" classpathref="classpath"
 			includeantruntime="true" debug="true" debuglevel="lines,vars,source" encoding="utf-8">
-<!--     		<src path="${idl-src.dir}" /> -->
     		<src path="${src.dir}" />
 		</javac>
 		<copy todir="${classes.dir}">
-<!--			<fileset dir="${idl-src.dir}" excludes="**/*.java" />-->
 			<fileset dir="${src.dir}" excludes="**/*.java" />
-		</copy>
-		<copy todir="${web.lib.dir}">
-			<fileset dir="${lib.dir}" includes="**" />
 		</copy>
 	</target>
 
@@ -89,77 +59,10 @@
 	<target name="jar" depends="compile">
 		<mkdir dir="${jar.dir}" />
 		<jar destfile="${jar.path}" basedir="${classes.dir}">
+			<manifest>
+				<attribute name="Main-Class" value="${main-class}" />
+			</manifest>
 		</jar>
 	</target>
-	
-	<!-- 生成shell文件 -->
-	<target name="shell" depends="compile">
-		<java fork="true" classname="${shell.builder}">
-			<classpath>
-				<path refid="classpath" />
-				<path location="${jar.path}" />
-			</classpath>
-			<arg value="shell.path=${shell.path}"/>
-			<arg value="shell.template.path=${shell.template.path}" />
-			<arg value="java.path=${java.home}/bin/java"/>
-			<arg value="project.dir=${basedir}"/>
-			<arg value="main-class=${main-class}"/>
-			<arg value="jar.path=${jar.path}" />
-			<arg value="server.port=${server-port}" />
-			<arg value="stop.port=${stop-port}" />
-			<arg value="stop.key=${stop-key}" />
-			<arg value="context.path=${context-path}" />
-		</java>
-		<chmod file="${shell.path}" perm="ug+rx"/>
-		
-		<java fork="true" classname="${shell.builder}">
-			<classpath>
-				<path refid="classpath" />
-				<path location="${jar.path}" />
-			</classpath>
-			<arg value="shell.path=${shell.jetty.start.path}"/>
-			<arg value="shell.template.path=${shell.jetty.start.template.path}" />
-			<arg value="java.path=${java.home}/bin/java"/>
-			<arg value="project.dir=${basedir}"/>
-			<arg value="main-class=${main-class}"/>
-			<arg value="jar.path=${jar.path}" />
-			<arg value="server.port=${server-port}" />
-			<arg value="stop.port=${stop-port}" />
-			<arg value="stop.key=${stop-key}" />
-			<arg value="context.path=${context-path}" />
-		</java>
-		
-		<java fork="true" classname="${shell.builder}">
-			<classpath>
-				<path refid="classpath" />
-				<path location="${jar.path}" />
-			</classpath>
-			<arg value="shell.path=${shell.jetty.stop.path}"/>
-			<arg value="shell.template.path=${shell.jetty.stop.template.path}" />
-			<arg value="java.path=${java.home}/bin/java"/>
-			<arg value="project.dir=${basedir}"/>
-			<arg value="main-class=${main-class}"/>
-			<arg value="jar.path=${jar.path}" />
-			<arg value="server.port=${server-port}" />
-			<arg value="stop.port=${stop-port}" />
-			<arg value="stop.key=${stop-key}" />
-			<arg value="context.path=${context-path}" />
-		</java>
-		<chmod file="${shell.jetty.stop.path}" perm="ug+rx"/>
-	</target>
-
-	<!-- 运行 -->
-	<target name="run" depends="jar">
-		<java fork="true" classname="${main-class}">
-			<classpath>
-				<path refid="classpath" />
-				<path location="${jar.path}" />
-			</classpath>
-			<arg value="shell.path=${shell.path}"/>
-			<arg value="java.path=${java.home}/bin/java"/>
-			<arg value="project.dir=${basedir}"/>
-			<arg value="main-class=${main-class}"/>
-		</java>
-	</target> 
 	
 </project>
