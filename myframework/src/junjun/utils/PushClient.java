@@ -29,11 +29,10 @@ public class PushClient
 	private static int maxTotalCon = 100;
 	
 	static {
-		
 		System.setProperty("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.SimpleLog");
 		System.setProperty("org.apache.commons.logging.simplelog.showdatetime", "true");
-		System.setProperty("org.apache.commons.logging.simplelog.logger.httpclient.wire.header", "debug");
-		System.setProperty("org.apache.commons.logging.simplelog.logger.org.apache.commons.httpclient", "debug");
+		System.setProperty("org.apache.commons.logging.simplelog.log.httpclient.wire.header", "debug");
+		System.setProperty("org.apache.commons.logging.simplelog.log.org.apache.commons.httpclient", "debug");
 		
 		connectionManager = new MultiThreadedHttpConnectionManager();;
 		HttpConnectionManagerParams params = connectionManager.getParams();
@@ -110,9 +109,11 @@ public class PushClient
 	}
 	
 	
-	public int Push(String url, Map<String, String> params, int method)
+	public ResponseData push(String url, Map<String, String> params, int method)
 	{
 		HttpMethod httpMethod = null;
+		ResponseData resdata = new ResponseData();
+		
 		if(method == GET)
 		{
 			httpMethod = getGetMethod(url, params, "utf-8");
@@ -123,7 +124,7 @@ public class PushClient
 		}
 		else 
 		{
-			return -1;
+			return resdata;
 		}
 		
 		
@@ -136,7 +137,12 @@ public class PushClient
 			{  	          
 				L.logger.warn("Method failed: " + httpMethod.getStatusLine());  
 	        }  
-			return statusCode;
+			String response = httpMethod.getResponseBodyAsString();
+			
+			resdata.setHttpStatus(statusCode);
+			resdata.setData(response);
+			return resdata;
+			
 		} catch (HttpException e) {
 			// TODO 自动生成的 catch 块
 			e.printStackTrace();
@@ -144,59 +150,13 @@ public class PushClient
 			// TODO 自动生成的 catch 块
 			e.printStackTrace();
 		}
-		return -1;
-		
-	}
-	
-	public int push(String url, Map<String, String> params, int method)
-	{
-		HttpMethod httpMethod = null;
-		if(method == GET)
-		{
-			httpMethod = getGetMethod(url, params, "utf-8");
-		}
-		else if(method == POST)
-		{
-			httpMethod = getPostMethod(url, params, "utf-8");
-		}
-		else 
-		{
-			return -1;
-		}
-		
-		
-		HttpClient client = getHttpClient();
-		try {
-			L.logger.info("push_client"+httpMethod.getQueryString());
-			int statusCode = client.executeMethod(httpMethod);
-			
-			if (statusCode != HttpStatus.SC_OK) 
-			{  	          
-				L.logger.warn("request :Method failed: " + httpMethod.getStatusLine());  
-	        }  
-			else
-			{
-				L.logger.info("request:Method success: " + httpMethod.getStatusLine()); 
-			}
-			
-			L.logger.warn("response:"  + httpMethod.getResponseBodyAsString());  
-			
-			return statusCode;
-		} catch (HttpException e) {
-			e.printStackTrace();
-			L.logger.error("exception:"+e.toString());
-		} catch (IOException e) {
-			e.printStackTrace();
-			L.logger.error("exception:"+e.toString());
-		}
-		return -1;	
+		return resdata;
 		
 	}
 	
 	
-	
-	
-	private static class UTF8PostMethod extends PostMethod { 
+	private static class UTF8PostMethod extends PostMethod 
+	{ 
 		public UTF8PostMethod(String url) { 
 		super(url); 
 		} 
@@ -206,14 +166,14 @@ public class PushClient
 		//return super.getRequestCharSet(); 
 		return "UTF-8"; 
 		} 
-	}  
+	}
 	
 	public static void main(String [] args)
 	{
 		
 		System.setProperty("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.SimpleLog");
 		System.setProperty("org.apache.commons.logging.simplelog.showdatetime", "true");
-		System.setProperty("org.apache.commons.logging.simplelog.logger.org.apache.commons.httpclient", "stdout");
+		System.setProperty("org.apache.commons.logging.simplelog.log.org.apache.commons.httpclient", "stdout");
 		//String url = "http://talent.baicizhan.com/services/labels";
 		String url = "http://112.124.4.53/words/push_talent_data_test";
 //		HttpClient client = getHttpClient();
