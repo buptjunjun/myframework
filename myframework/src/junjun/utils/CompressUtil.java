@@ -4,32 +4,63 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-public class CompressUtil {
-
+public class CompressUtil 
+{	
+	static public void compress(File src , File target) throws Exception
+	{		
+		if(src == null || !src.exists())
+		{
+			return ;
+		}	
+		
+		ZipOutputStream zipout = new ZipOutputStream(new FileOutputStream(target));
+		compress(src, zipout, "",true);
+		zipout.flush();
+		zipout.close();
+		zipout = null;
+		return ;
+		
+	}
+		
 	/**
 	 * 压缩文件
 	 * 返回压缩文件的名字
 	 * @param files
 	 * @return
+	 * @throws Exception 
 	 */
-	static public String compress(File src,File target)
+	static public void compress(File src,ZipOutputStream zipout,String baseName, boolean flag) throws Exception
 	{
-		if(src == null || !src.exists() || target == null || !target.exists())
-			return null;
+		
+		if(src == null || !src.exists())
+			return;
 		
 
-		ZipOutputStream zipout = null;
-		BufferedInputStream bis = null;
-		try 
+		if(src.isDirectory())
+		{	
+			flag = false;
+			if(baseName.trim().endsWith("/") == false)
+				baseName += "/";
+			
+			for(File f : src.listFiles())
+			{
+				compress(f, zipout, baseName+f.getName(), flag);
+			}			
+		}
+		else
 		{
-			FileOutputStream fout = new FileOutputStream(target);
-			zipout = new ZipOutputStream(fout);
+			BufferedInputStream bis = null;
 			bis = new BufferedInputStream(new FileInputStream(src));
-		    ZipEntry zipEntry = new ZipEntry(src.getName());
+			if(flag == true)
+			{
+				baseName = src.getName();
+				flag = false;
+			}
+			
+		    ZipEntry zipEntry = new ZipEntry(baseName);
 		    zipout.putNextEntry(zipEntry);
 		    
 		    byte [] buffer = new byte[1024];
@@ -37,89 +68,22 @@ public class CompressUtil {
 		    while( (count = bis.read(buffer) )!= -1)
 		    {
 		    	zipout.write(buffer,0,count);
-		    }
-			
-		} 
-		catch (Exception e) 
-		{
-			// TODO 自动生成的 catch 块
-			e.printStackTrace();
-			return null;
-		}
-		finally
-		{
-			
-			try {
-				bis.close();
-				zipout.close();
-				bis = null;
-				zipout = null;
-			} catch (Exception e2) {
-				// TODO: handle exception
-				e2.printStackTrace();
-				return null;
-			}
-			
-		}
-		return target.getName();
+		    }			
+		    
+			bis.close();
+			bis = null;
+			zipout.flush();
+		}		
 	}
 	
-	
-	/**
-	 * 压缩一些列文件
-	 * 返回压缩文件的名字
-	 * @param files
-	 * @return
-	 */
-	static public String compress(List<File>  src,File target)
+	public static void main(String [] args)
 	{
-		if(src == null  || target == null || !target.exists())
-			return null;
-		
-
-		ZipOutputStream zipout = null;
-		BufferedInputStream bis = null;
-		try 
-		{
-			FileOutputStream fout = new FileOutputStream(target);
-			zipout = new ZipOutputStream(fout);
-			for(File file : src)
-			{
-				bis = new BufferedInputStream(new FileInputStream(file));
-			    ZipEntry zipEntry = new ZipEntry(file.getName());
-			    zipout.putNextEntry(zipEntry);
-			    
-			    byte [] buffer = new byte[1024];
-			    int count = 0;
-			    while( (count = bis.read(buffer) )!= -1)
-			    {
-			    	zipout.write(buffer,0,count);
-			    }
-			    bis.close();
-			}
-			
-		} 
-		catch (Exception e) 
-		{
+		try {
+			compress(new File("/User/junjun/bird.jpg"),new File("/User/junjun/bird.jpg.gz"));
+		} catch (Exception e) {
 			// TODO 自动生成的 catch 块
 			e.printStackTrace();
-			return null;
 		}
-		finally
-		{			
-			try 
-			{
-				zipout.close();
-				bis = null;
-				zipout = null;
-			}
-			catch (Exception e2) 
-			{
-				e2.printStackTrace();
-				return null;
-			}		
-		}		
-		return target.getName();
 	}
 
 }
