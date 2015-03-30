@@ -3,7 +3,11 @@ package junjun.utils;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -74,6 +78,56 @@ public class CompressUtil
 			bis = null;
 			zipout.flush();
 		}		
+	}
+	
+
+	/**
+	 * GUN ZIP格式压缩文件
+	 * @param src
+	 * @param to
+	 * @throws Exception
+	 */
+	static public void compressGZ(File src , String to) throws Exception
+	{		
+		if(src == null || !src.exists())
+		{
+			return ;
+		}	
+	
+		FileInputStream fin=new FileInputStream(src); 
+		FileOutputStream fout=new FileOutputStream(to); 
+		 
+		GZIPOutputStream gzout=new GZIPOutputStream(fout); 
+		byte[] buf=new byte[1024];//设定读入缓冲区尺寸 
+		int num; 
+
+		while ((num=fin.read(buf)) != -1) 
+		{ 
+			gzout.write(buf,0,num); 
+		} 
+		gzout.close();
+		fout.close(); 
+		fin.close(); 
+	}
+	
+	/**
+	 * GUN ZIP格式解压缩文件
+	 * @param src
+	 * @param to
+	 * @throws Exception
+	 */
+	public static void uncompressGZ(File src, File to) throws FileNotFoundException, IOException
+	{
+	    byte[] buffer = new byte[1024];
+    	GZIPInputStream gzis = new GZIPInputStream(new FileInputStream(src));
+    	FileOutputStream out = new FileOutputStream(to);
+        int len;
+        while ((len = gzis.read(buffer)) > 0) {
+        	out.write(buffer, 0, len);
+        }
+        gzis.close();
+    	out.close();
+
 	}
 	
 	public static void main(String [] args)
