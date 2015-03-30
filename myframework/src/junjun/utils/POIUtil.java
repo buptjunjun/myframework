@@ -17,6 +17,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 
+@SuppressWarnings("deprecation")
 public class POIUtil 
 {
 	public static void creareExcel(String path) throws Exception
@@ -94,6 +95,13 @@ public class POIUtil
 	}
 	
 	
+	/**
+	 * 创建 excel文件 数据为一个表的格式List<List<String>> 类似二维数组
+	 * @param path
+	 * @param title
+	 * @param datas
+	 * @throws Exception
+	 */
 	public static void writeExcel(String path,String title, List<List<String>> datas) throws Exception
 	{
 		 
