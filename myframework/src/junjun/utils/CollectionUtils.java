@@ -33,6 +33,24 @@ public class CollectionUtils {
 		return ret;
 	}
 	
+	public static <M> boolean setAttr(List<M> qs,String attrName,Object value)
+	{
+		if(qs == null || qs.size() == 0) return true;
+		
+		for(M q : qs)
+		{
+			try {
+				Field field;			
+				field = q.getClass().getDeclaredField(attrName);		
+				field.setAccessible(true);			
+				field.set(q, value);			
+			} catch (Exception e) {
+				e.printStackTrace();
+				return false;
+			} 
+		}	
+		return  true;
+	}
 	
 	static class User 
 	{ 
@@ -43,12 +61,23 @@ public class CollectionUtils {
 			this.id = id;
 			this.name = name;
 		}
+		
+		@Override
+		public String toString() {
+			// TODO 自动生成的方法存根
+			return id+","+name;
+		}
 	}
 	public static void main(String args [] ) throws Exception
 	{
 		List<User> users  = Arrays.asList(new User(1,"junjun"), new User(2,"bobo"));
+		System.out.println(users);
+		
 		Collection<Integer> userIds = getAttr(users, "id");
-		System.out.println(userIds);
+		System.out.println(userIds);	
+		
+		setAttr(users, "id", 11111);
+		System.out.println(users);
 	}
 	
 }
